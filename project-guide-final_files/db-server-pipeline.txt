@@ -1,0 +1,176 @@
+##backend-pipeline
+
+
+
+
+pipeline {
+    agent any
+    parameters {
+      gitParameter branch: '', branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', quickFilterEnabled: false, selectedValue: 'DEFAULT', sortMode: 'NONE', tagFilter: '*', type: 'GitParameterDefinition'
+    }
+
+    stages {
+        stage('SCM') {
+            steps {
+                checkout scmGit(branches: [[name: "*/${BRANCH}"]], extensions: [], userRemoteConfigs: [[url: 'https://github.com/knaopel/docker-frontend-backend-db.git']])
+            }
+        }
+        stage('db url update'){
+            steps{
+                sh '''#!/bin/bash
+                cd backend
+                sed -i -e 's/mongodb:\\/\\/mongo:27017\\/todos/mongodb:\\/\\/127.0.0.1:27017\\/todos/g' server.js
+                '''
+            }
+        }
+        stage('copy and deploy on app server'){
+            steps{
+                sh '''#!/bin/bash 
+                cd backend
+               scp -r -i /var/lib/jenkins/key.pem * ubuntu@172.31.6.11:/home/ubuntu/api/
+               ssh -i /var/lib/jenkins/key.pem ubuntu@172.31.6.11 "cd /home/ubuntu/api && rm -rf node_modules && . ~/.nvm/nvm.sh && . ~/.profile && . ~/.bashrc && npm i && pm2 delete server && pm2 start server.js && pm2 ls"
+                '''
+            }
+        }
+    }
+}
+
+
+###backend history
+
+ 1  sudo apt update
+    2  sudo hostnamectl set-hostname DB-app-server
+    3  sudo -i
+    4  ls
+    5  pwd
+    6  mkdir api
+    7  cd api/
+    8  pwd
+    9  npm install pm2@latest -g
+   10  ls
+   11  ls -a
+   12  ls
+   13  ls -a
+   14  ll
+   15  ls
+   16  pm2 start server.js
+   17  pm2 delete server
+   18  pm2 ls
+   19  npm i
+   20  ls
+   21  pm2 delete server
+   22  pm2 start server.js
+   23  pm ls
+   24  pm2 ls
+   25  netstat
+   26  netstat -tulpn
+   27  ls
+   28  pm2 ls
+   29  pm2 delte server
+   30  pm2 delete server
+   31  node --version
+   32  ls
+   33  npm install
+   34  ls
+   35  rm -rf node_modules/
+   36  npm install
+   37  ls
+   38  #pm2 startt server.js
+   39  less server.js
+   40  pm2 start server.js
+   41  pm2 logs
+   42  sudo -i
+   43  mongosh
+   44  ls
+   45  pm2 logs
+   46  ls
+   47  rm -rf node_modules/
+   48  npm cache clean
+   49  ls
+   50  npm i
+   51  ls
+   52  node server.js
+   53  netstat -tulon
+   54  netstat -tulpn
+   55  ps -ef | greo node
+   56  ps -ef | grep node
+   57  kill -9 8566
+   58  ps -ef | grep node
+   59  ls
+   60  pm start server,js
+   61  pm start server.js
+   62  pm2 start server.js
+   63  pm logs
+   64  pm2 logs
+   65  npm i express
+   66  pm2 logs
+   67  pm2 delete server
+   68  pm2 start server.js
+   69  pm2 logs
+   70  ls
+   71  nvm ls
+   72  vi package.json
+   73  node server.js
+   74  pm2 logs
+   75  npm install express --save
+   76  pm2 restat server
+   77  pm2 ls
+   78  pm2 restat 0
+   79  pm2 delete 0
+   80  pm2 start server.js
+   81  netstat -tulpn | grep 3000
+   82  pm2 logs
+   83  netstat -tulpn | grep 3001
+   84  pm2 logs
+   85  # Add Docker's official GPG key:
+   86  sudo apt-get update
+   87  sudo apt-get install ca-certificates curl
+   88  sudo install -m 0755 -d /etc/apt/keyrings
+   89  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+   90  sudo chmod a+r /etc/apt/keyrings/docker.asc
+   91  # Add the repository to Apt sources:
+   92  echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+   93    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   94  sudo apt-get update
+   95  sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   96  sudo docker images
+   97  sudo docker build -t test-api .
+   98  sudo docker run -itd -p 3001:3001 --name=test-api test-api
+   99  docker ps
+  100  sudo docker ps
+  101  sudo docker logs -f test-api
+  102  sudo docker ps
+  103  sudo docker ps -a
+  104  sudo docker rm -f test-api
+  105  sudo docker run -itd -p 3001:3001 --name=test-api test-api
+  106  sudo docker ps
+  107  sudo docker logs -f test-api
+  108  sudo docker ps
+  109  sudo docker logs -f test-api
+  110  netstat -tulpn
+  111  vi server.js
+  112  sudo docker restart test-api
+  113  sudo docker ps
+  114  sudo docker rm -f test-api
+  115  netstat -tulpn | grep 3001
+  116  pm2 ls
+  117  pm2 delete server
+  118  pm2 start server.js
+  119  pm2 ls
+  120  netstat -tulpn | grep 3001
+  121  pm2 ls
+  122  ls
+  123  rm -rf node_modules/
+  124  ls
+  125  npm
+  126  which npm
+  127  ls
+  128  npm --version
+  129  ls
+  130  pm2 ls
+  131  ls
+  132  ll
+  133  date
+  134  pm2 ls
+  135  mongosh
+  136  history >db-server.txt

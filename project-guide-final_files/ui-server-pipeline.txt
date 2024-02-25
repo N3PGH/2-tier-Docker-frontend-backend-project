@@ -1,0 +1,107 @@
+#Ui-server-pipeline
+
+
+pipeline {
+    agent any
+    parameters {
+      gitParameter branch: '', branchFilter: 'origin/(.*)', defaultValue: 'master', name: 'BRANCH', quickFilterEnabled: false, selectedValue: 'DEFAULT', sortMode: 'NONE', tagFilter: '*', type: 'GitParameterDefinition'
+    }
+
+    stages {
+        stage('SCM') {
+            steps {
+                checkout scmGit(branches: [[name: "*/${BRANCH}"]], extensions: [], userRemoteConfigs: [[url: 'https://github.com/knaopel/docker-frontend-backend-db.git']])
+            }
+        }
+        stage('db & backend url update'){
+            steps{
+                sh '''#!/bin/bash
+                cd frontend
+                cp .env.development .env
+                sed -i -e 's/REACT_APP_API_URL=http:\\/\\/localhost:3001\\/api/REACT_APP_API_URL=http:\\/\\/web.devopsdemo.com\\/api/g' .env
+                ls -lrtha
+                cat .env
+                '''
+            }
+        }
+        stage('create UI build & deploy on server'){
+            steps{
+                sh '''#!/bin/bash 
+                cd frontend
+                . ~/.nvm/nvm.sh
+                . ~/.profile
+                . ~/.bashrc
+                nvm install 14.21.3
+                nvm use 14.21.3
+                rm -rf node_modules
+                rm -rf build
+                npm i
+                #npm install pm2@latest -g
+                #pm2 delete ui
+                #pm2 start npm --name "ui" -- start
+                npm run build
+                sudo mv /var/www/html/build/ /var/www/html/build_old
+                sudo cp -r build /var/www/html/
+                '''
+            }
+        }
+    }
+}
+
+
+
+##history
+    1  vi etc/host
+    2  sudo apt-get install jenkins
+    3  vi /etc/hosts
+    4  nslookup jen.devopsdemo.com
+    5  nslookupweb.devopsdemo.com
+    6  nslookup web.devopsdemo.com
+    7  sudo apt install fontconfig openjdk-17-jre
+    8  systemctl status jenkins.service
+    9  sudo wget -O /usr/share/keyrings/jenkins-keyring.asc   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+   10  echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]   https://pkg.jenkins.io/debian-stable binary/ | sudo tee   /etc/apt/sources.list.d/jenkins.list > /dev/null
+   11  sudo apt-get update
+   12  sudo apt-get install jenkins
+   13  apt install nginx
+   14  cd /etc/nginx/
+   15  ls
+   16  vi conf.d/
+   17  cd conf.d/
+   18  ls
+   19  pwd
+   20  cd /etc/nginx/
+   21  cd conf.d/
+   22  vi jen.devopsdemo.com.conf
+   23  su jenkins
+   24  cp -r /var/lib/jenkins/workspace/sample_project_UI_build_deploy_pipeline/frontend/build/ /var/www/html/
+   25  vi /etc/nginx/sites-available/default
+   26  cp /etc/nginx/sites-available/default /etc/nginx/sites-available/ui.conf
+   27  vi /etc/nginx/sites-available/ui.conf
+   28  nano /etc/nginx/sites-available/ui.conf
+   29  systemctl restart nginx.service
+   30  netstat -tulpn
+   31  netstat -tulpn | grep nginx
+   32  systemctl restart nginx.service
+   33  netstat -tulpn | grep nginx
+   34  ln -s /etc/nginx/sites-available/ui.conf /etc/nginx/sites-enabled/
+   35  systemctl restart nginx.service
+   36  netstat -tulpn | grep nginx
+   37  curl localhost:3000
+   38  su jenkins
+   39  rm -rf /etc/nginx/sites-enabled/ui.conf
+   40  systemctl restartrestart nginx.service
+   41  su jenins
+   42  su jenkins
+   43  netstat -tulpn | grep 3000
+   44  kill -9 14895
+   45  netstat -tulpn | grep 3000
+   46  ls /etc/nginx/sites-enabled/
+   47  netstat -tulpn | grep 80
+   48  su jenkins
+   49  visudo
+   50  systemctl restart sshd
+   51  su jenkins
+   52  pwd
+   53  history > uiserver.txt
+root@jen-ui-server:/home/ubuntu#
